@@ -1,0 +1,18 @@
+add <name>
+adds member
+remove <name>
+removes member
+update
+saves data
+clear balance
+clears balances
+clear members
+removes all members
+exit
+guess it...
+pay <name> <amount>
+pays from <name>
+pay <name1> <name2> <amount>
+pays from <name1> to <name2>
+pay <name0> <amount> exclude <name1> <name2> ...
+pays from <name0> to all	excluding <name1>, <name2>, ...
