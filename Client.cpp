@@ -1,34 +1,30 @@
-#include <string>
-#include <math.h>
+//
+// Created by mkondratek on 22.07.17.
+//
 
-using namespace std;
+#include "Client.h"
 
-class Client
-{
-public:
-    string id;
-    float balance;
-    float fixed;
+Client::Client(std::string name, double _balance) {
+    balance = _balance;
+    id = name;
+}
 
-    Client(string name, float bal)
-    {
-        id=name;
-        balance=bal;
-        fixed=bal;
-    }
+double Client::getBalance() {
+    return balance;
+}
 
-    Client(string name)
-    {
-        id=name;
-        balance=0;
-        fixed=0;
-    }
+void Client::setBalance(double _balance) {
+    balance = _balance;
+}
 
-    void fixBalance()
-    {
-        fixed=balance*100;
-        if(fixed>0) fixed=ceil(fixed);
-        if(fixed<0) fixed=floor(fixed);
-        fixed/=100;
-    }
-};
+void Client::addToBalance(double _value) {
+    balance += _value;
+}
+
+std::string Client::getName() {
+    return id;
+}
+
+void Client::rename(std::string name) {
+    id = name;
+}
