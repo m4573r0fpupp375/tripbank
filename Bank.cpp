@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <regex>
+#include <iomanip>
 #include "Bank.h"
 
 Bank::Bank() : colorizer(std::cout) {
@@ -18,7 +19,7 @@ Bank::Bank() : colorizer(std::cout) {
         file >> balance;
         Client client(name, balance);
         members.push_back(client);
-        msg = "";
+        redmsg = "";
     }
     file.close();
     file.open("../commands.txt", std::ios::in);
@@ -31,6 +32,26 @@ Bank::Bank() : colorizer(std::cout) {
     needHelp = false;
 }
 
+bool Bank::validateExclude(std::vector<std::string> & exclude) {
+    for (int i=0; i<exclude.size(); ++i) {
+        if (!memberExists(exclude[i])) {
+            redmsg = ">> ERROR: NO SUCH NAME (" + exclude[i] + ")!\n";
+            return false;
+        }
+    }
+
+    for (int i=0; i<exclude.size(); ++i) {
+        for (int j=i+1; j<exclude.size(); ++j) {
+            if (exclude[i] == exclude[j]) {
+                redmsg = ">> ERROR: DUPLICATE NAME IN EXCLUDE ARRAY!\n";
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 void Bank::updateData() {
     std::fstream file;
     file.open("../data.txt", std::ios::out);
@@ -40,6 +61,7 @@ void Bank::updateData() {
     file << members[members.size() - 1].getName() << " " << members[members.size() - 1].getBalance();
     file.close();
     saved = true;
+    gremsg = ">> SUCCESS\n";
 }
 
 void Bank::showCommands() {
@@ -55,19 +77,24 @@ void Bank::showCommands() {
 }
 
 void Bank::addMember(std::string name) {
+    if (name.length() > 20) {
+        redmsg = ">> ERROR: MEMBER NAME TO LONG! Use up to 20 characters.\n";
+        return;
+    }
+
     if (memberExists(name)) {
-        msg = ">> ERROR: MEMBER ALREADY EXISTS!\n";
+        redmsg = ">> ERROR: MEMBER ALREADY EXISTS!\n";
         return;
     }
 
     std::smatch tmp;
     if (std::regex_search(name, tmp, std::regex("[a-zA-Z]*"))) {
         if (tmp[0] != name) {
-            msg = ">> ERROR: MEMBER NAME CAN CONTAINS ONLY LETTERS\n";
+            redmsg = ">> ERROR: MEMBER NAME CAN CONTAINS ONLY LETTERS\n";
             return;
         }
     } else {
-        msg = ">> ERROR: INVALID MEMBER NAME\n";
+        redmsg = ">> ERROR: INVALID MEMBER NAME\n";
         return;
     }
 
@@ -76,11 +103,11 @@ void Bank::addMember(std::string name) {
         std::size_t pos = commands[i].find(" ");
         std::string cmd = commands[i];
         if (pos != std::string::npos) {
-            cmd = name.substr(0, pos);
+            cmd = commands[i].substr(0, pos);
         }
 
         if (cmd == name) {
-            msg = ">> ERROR: MEMBER NAME CANNOT BE A COMMAND!\n";
+            redmsg = ">> ERROR: MEMBER NAME CANNOT BE A COMMAND!\n";
             return;
         }
     }
@@ -88,6 +115,7 @@ void Bank::addMember(std::string name) {
     Client temp(name);
     members.push_back(temp);
     saved = false;
+    gremsg = ">> SUCCESS\n";
 }
 
 bool Bank::memberExists(std::string name) {
@@ -97,7 +125,6 @@ bool Bank::memberExists(std::string name) {
 
 bool Bank::memberExists(std::string name, std::vector<std::string> &names) {
     for (int i = 0; i < names.size(); ++i) if (names[i] == name) return true;
-    msg = ">> ERROR: NO SUCH NAME\n";
     return false;
 }
 
@@ -111,55 +138,64 @@ void Bank::removeMember(std::string name) {
             }
         }
         saved = false;
-    } else msg = ">> ERROR: NO SUCH NAME\n";
+    } else redmsg = ">> ERROR: NO SUCH NAME\n";
 }
 
 void Bank::showData() {
     colorizer.setColor("BOLDWHITE");
-    std::cout << " ID / NAME         / BALANCE \n";
+    std::cout << "   NO  /         NAME         / BALANCE\n";
+    std::cout << "----------------------------------------\n";
     colorizer.setColor("RESET");
     for (int i = 0; i < members.size(); ++i) {
         if (i % 2 == 0) colorizer.setColor("WHITE");
         else colorizer.setColor("RESET");
-        std::string dist = "", m = " ";
-        unsigned int j = (unsigned int) (13 - members[i].getName().length());
-        for (; j > 0; --j) dist += " ";
-        if (members[i].getBalance() > 0) m += " ";
-        if (i < 10)
-            std::cout << " " << i << "  | " << members[i].getName() << dist << "|" << m << members[i].getBalance()
-                      << std::endl;
-        else
-            std::cout << " " << i << " | " << members[i].getName() << dist << "|" << m << members[i].getBalance()
-                      << std::endl;
+        std::string m = "";
+        if (members[i].getBalance() >= 0) m = " ";
+        std::cout << std::setw(5) << i << "  | "
+                  << std::setw(20) << members[i].getName() << " | " << m;
+        std::cout << std::fixed << std::setprecision(2) << members[i].getBalance() << std::endl;
     }
-    std::cout << "-----------------------------\n";
+    std::cout << "----------------------------------------\n";
     colorizer.setColor("WHITE");
     if (needHelp) {
         showCommands();
         needHelp = false;
     }
     colorizer.setColor("RED");
-    std::cout << msg;
+    std::cout << redmsg;
+    colorizer.setColor("GREEN");
+    std::cout << gremsg;
     colorizer.setColor("RESET");
-    msg = "";
+    redmsg = "";
+    gremsg = "";
 }
 
 void Bank::pay(std::string from, std::string bal, std::vector<std::string> &without) {
+    if (without.size() == 0) {
+        pay(from, bal);
+        return;
+    } else if (without.size() - 1 >= members.size()) {
+        return;
+    }
+
     if (memberExists(from)) {
         int i;
-        for (i = 0; i < members.size(); ++i) if (from == members[i].getName()) break;
+        for (i = 0; i < members.size(); ++i) {
+            if (from == members[i].getName()) break;
+        }
         double rest, balance = atof(bal.c_str());
-        std::cout << without.size();
-        std::cout << "A";
-        int x;
-        std::cin >> x;
         rest = balance / (members.size() - without.size());
         members[i].addToBalance(balance);
-        for (int j = 0; j < members.size(); ++j)
-            if (!memberExists(members[j].getName(), without))
+        for (int j = 0; j < members.size(); ++j) {
+            if (!memberExists(members[j].getName(), without)) {
                 members[j].addToBalance(-rest);
+            }
+        }
         saved = false;
-    } else msg = ">> ERROR: NO SUCH NAME\n";
+        gremsg = ">> SUCCESS\n";
+    } else {
+        redmsg = ">> ERROR: NO SUCH NAME\n";
+    }
 }
 
 void Bank::pay(std::string from, std::string to, std::string _balance) {
@@ -170,7 +206,8 @@ void Bank::pay(std::string from, std::string to, std::string _balance) {
         for (i = 0; i < members.size(); ++i) if (to == members[i].getName()) break;
         members[i].addToBalance(-atof(_balance.c_str()));
         saved = false;
-    } else msg = ">> ERROR: NO SUCH NAME\n";
+        gremsg = ">> SUCCESS\n";
+    } else redmsg = ">> ERROR: NO SUCH NAME\n";
 }
 
 void Bank::pay(std::string from, std::string _balance) {
@@ -182,7 +219,8 @@ void Bank::pay(std::string from, std::string _balance) {
         members[i].addToBalance(balance);
         for (int j = 0; j < members.size(); ++j) members[j].addToBalance(-rest);
         saved = false;
-    } else msg = ">> ERROR: NO SUCH NAME\n";
+        gremsg = ">> SUCCESS\n";
+    } else redmsg = ">> ERROR: NO SUCH NAME\n";
 }
 
 void Bank::setAllToZero() {
@@ -208,11 +246,10 @@ bool Bank::handleInput(std::vector<std::string> input) {
         } else if (input.size() == 4) {
             pay(input[1], input[2], input[3]);
         } else if (input[3] == "exclude") {
-            std::cout << "A";
-            int x;
-            std::cin >> x;
-            std::vector<std::string> without(input.begin() + 4, input.end());
-            pay(input[1], input[2], without);
+            std::vector<std::string> without(input.begin() + 4, input.begin() + input.size());
+            if (validateExclude(without)) {
+                pay(input[1], input[2], without);
+            }
         }
     } else if (input[0] == "exit") {
         if (!saved) {

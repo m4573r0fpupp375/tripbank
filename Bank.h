@@ -13,9 +13,11 @@ class Bank {
     Colorizer colorizer;
     std::vector<Client> members;
     std::vector<std::string> commands;
-    std::string msg;
+    std::string redmsg, gremsg;
     bool saved;
     bool needHelp;
+
+    bool validateExclude(std::vector<std::string>&);
 
 public:
 

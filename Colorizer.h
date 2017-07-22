@@ -8,8 +8,13 @@
 #include <map>
 
 class Colorizer {
-    std::ostream &stream;
+#ifdef __WIN32
     static const std::map<std::string, std::string> colors;
+#elif __unix__
+    static const std::map<std::string, std::string> colors;
+#endif
+
+    std::ostream &stream;
 
 public:
 

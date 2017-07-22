@@ -29,7 +29,7 @@ int main() {
     std::vector<std::string> command;
 
     while (true) {
-        std::string input="";
+        std::string input = "";
 
 #ifdef _WIN32
         std::system("CLS");

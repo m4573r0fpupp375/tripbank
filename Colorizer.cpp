@@ -5,6 +5,29 @@
 #include <ostream>
 #include "Colorizer.h"
 
+#ifdef _WIN32
+
+
+const std::map<std::string, unsigned short int> Colorized::colors =
+        {{"RESET",       7},
+         {"BLACK",       0},              /* Black */
+         {"RED",         12},             /* Red */
+         {"GREEN",       10},             /* Green */
+         {"YELLOW",      14},             /* Yellow */
+         {"BLUE",        9},              /* Blue */
+         {"MAGENTA",     13},             /* Magenta */
+         {"CYAN",        11},             /* Cyan */
+         {"WHITE",       15},             /* White */
+         };
+
+void Colorizer::setColor(std::string color) {
+    if (color.substr(0, 4) == "BOLD") {
+        color = color.substr(4);
+    }
+    setConsoleTextAtribute(GetStdHandle( STD_OUTPUT_HANDLE), );
+}
+
+#elif __unix__
 
 const std::map<std::string, std::string> Colorizer::colors =
         {{"RESET",       "\033[0m"},
@@ -33,3 +56,7 @@ void Colorizer::setColor(std::string color) {
     stream << colors.at(color);
 }
 
+#else
+void Colorizer::setColor(std::string) {}
+
+#endif
