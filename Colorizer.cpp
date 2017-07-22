@@ -7,8 +7,9 @@
 
 #ifdef _WIN32
 
+#include <windows.h>
 
-const std::map<std::string, unsigned short int> Colorized::colors =
+const std::map<std::string, unsigned short int> Colorizer::colors =
         {{"RESET",       7},
          {"BLACK",       0},              /* Black */
          {"RED",         12},             /* Red */
@@ -24,7 +25,7 @@ void Colorizer::setColor(std::string color) {
     if (color.substr(0, 4) == "BOLD") {
         color = color.substr(4);
     }
-    setConsoleTextAtribute(GetStdHandle( STD_OUTPUT_HANDLE), );
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), colors.at(color));
 }
 
 #elif __unix__

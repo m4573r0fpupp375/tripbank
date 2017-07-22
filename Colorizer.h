@@ -9,7 +9,7 @@
 
 class Colorizer {
 #ifdef __WIN32
-    static const std::map<std::string, std::string> colors;
+    static const std::map<std::string, unsigned short int> colors;
 #elif __unix__
     static const std::map<std::string, std::string> colors;
 #endif

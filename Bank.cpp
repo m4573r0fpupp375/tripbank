@@ -32,16 +32,16 @@ Bank::Bank() : colorizer(std::cout) {
     needHelp = false;
 }
 
-bool Bank::validateExclude(std::vector<std::string> & exclude) {
-    for (int i=0; i<exclude.size(); ++i) {
+bool Bank::validateExclude(std::vector<std::string> &exclude) {
+    for (int i = 0; i < exclude.size(); ++i) {
         if (!memberExists(exclude[i])) {
             redmsg = ">> ERROR: NO SUCH NAME (" + exclude[i] + ")!\n";
             return false;
         }
     }
 
-    for (int i=0; i<exclude.size(); ++i) {
-        for (int j=i+1; j<exclude.size(); ++j) {
+    for (int i = 0; i < exclude.size(); ++i) {
+        for (int j = i + 1; j < exclude.size(); ++j) {
             if (exclude[i] == exclude[j]) {
                 redmsg = ">> ERROR: DUPLICATE NAME IN EXCLUDE ARRAY!\n";
                 return false;
@@ -87,14 +87,26 @@ void Bank::addMember(std::string name) {
         return;
     }
 
-    std::smatch tmp;
-    if (std::regex_search(name, tmp, std::regex("[a-zA-Z]*"))) {
-        if (tmp[0] != name) {
-            redmsg = ">> ERROR: MEMBER NAME CAN CONTAINS ONLY LETTERS\n";
-            return;
+//    std::smatch tmp;
+//    if (std::regex_search(name, tmp, std::regex("[a-zA-Z]*"))) {
+//        if (tmp[0] != name) {
+//            redmsg = ">> ERROR: MEMBER NAME CAN CONTAINS ONLY LETTERS\n";
+//            return;
+//        }
+//    } else {
+//        redmsg = ">> ERROR: INVALID MEMBER NAME\n";
+//        return;
+//    }
+
+    bool invalid = false;
+    for (int i = 0; i < name.length(); ++i) {
+        if (!isalpha(name[i])) {
+            invalid = true;
+            break;
         }
-    } else {
-        redmsg = ">> ERROR: INVALID MEMBER NAME\n";
+    }
+    if (invalid) {
+        redmsg = ">> ERROR: MEMBER NAME CAN CONTAINS ONLY LETTERS\n";
         return;
     }
 
@@ -151,7 +163,7 @@ void Bank::showData() {
         else colorizer.setColor("RESET");
         std::string m = "";
         if (members[i].getBalance() >= 0) m = " ";
-        std::cout << std::setw(5) << i << "  | "
+        std::cout << std::setw(6) << i + 1 << " | "
                   << std::setw(20) << members[i].getName() << " | " << m;
         std::cout << std::fixed << std::setprecision(2) << members[i].getBalance() << std::endl;
     }
