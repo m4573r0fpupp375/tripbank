@@ -134,8 +134,8 @@ std::string CommandLine::getCommand() {
                 }
                 unsigned long int tmp = charCount;
 
-                clear();
                 command[command.length() - 1] = ' ';
+                clear();
 
                 charCount = tmp - 1;
                 std::cout << command;
@@ -192,11 +192,16 @@ std::string CommandLine::getCommand() {
             if (charCount == command.length()) {
                 command.push_back((char) next);
                 std::cout << (char) next;
+                charCount++;
             } else {
-                command.push_back(' ');
+                if (command[command.length() - 1 != ' ']) {
+                    command.push_back(' ');
+                }
+
                 for (unsigned long int i = command.length() - 1; i > charCount; --i) {
                     command[i] = command[i - 1];
                 }
+
                 command[charCount] = (char) next;
                 unsigned long int tmp = charCount;
                 clear();
@@ -205,7 +210,6 @@ std::string CommandLine::getCommand() {
                 setCursor(charCount);
             }
 
-            charCount++;
         } else {
         }
 

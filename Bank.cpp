@@ -172,11 +172,12 @@ void Bank::removeMember(std::string name) {
 void Bank::showData() {
     colorizer.setColor("BOLDWHITE");
     std::cout << "   NO  /         NAME         / BALANCE\n";
-    std::cout << "----------------------------------------\n";
     colorizer.setColor("RESET");
+    std::cout << "----------------------------------------\n";
+    colorizer.setColor("WHITE");
     for (int i = 0; i < members.size(); ++i) {
-        if (i % 2 == 0) colorizer.setColor("WHITE");
-        else colorizer.setColor("RESET");
+        if (i % 2 == 0) colorizer.setColor("RESET");
+        else colorizer.setColor("WHITE");
         std::string m = "";
         if (members[i].getBalance() >= 0) m = " ";
         std::cout << std::setw(6) << i + 1 << " | "
