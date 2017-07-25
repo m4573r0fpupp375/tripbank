@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "Bank.h"
+#include "CommandLine.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -24,25 +25,38 @@ std::vector<std::string> splitCommand(std::string str) {
     return temp;
 }
 
+void clear() {
+#ifdef _WIN32
+    std::system("CLS");
+#else
+    std::system("clear");
+#endif
+}
+
 int main() {
     Bank bank;
+    CommandLine commandLine;
     std::vector<std::string> command;
 
-    while (true) {
+    do {
         std::string input = "";
 
-#ifdef _WIN32
-        std::system("CLS");
-#else
-        std::system("clear");
-#endif
-
+        clear();
         bank.showData();
         std::cout << ">> ";
+
+#ifdef _WIN32
         getline(std::cin, input);
+#else
+        input = commandLine.getCommand();
+#endif
+
+        if (input == "") continue;
         command = splitCommand(input);
-        if (!bank.handleInput(command)) break;
-    }
+
+    } while (bank.handleInput(command));
+
+    clear();
 
     return 0;
 }

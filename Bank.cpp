@@ -8,6 +8,29 @@
 #include <iomanip>
 #include "Bank.h"
 
+bool isalpha(std::string str) {
+    for (int i = 0; i < str.length(); ++i) {
+        if (!isalpha(str[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool isnum(std::string str) {
+    bool dot = false;
+    for (int i = 0; i < str.length(); ++i) {
+        if (isdigit(str[i])) {
+            continue;
+        }
+        else if (!dot && str[i] == '.') {
+            dot = true;
+        }
+        else return false;
+    }
+    return true;
+}
+
 Bank::Bank() : colorizer(std::cout) {
     std::fstream file;
     file.open("../data.txt", std::ios::in);
@@ -98,14 +121,7 @@ void Bank::addMember(std::string name) {
 //        return;
 //    }
 
-    bool invalid = false;
-    for (int i = 0; i < name.length(); ++i) {
-        if (!isalpha(name[i])) {
-            invalid = true;
-            break;
-        }
-    }
-    if (invalid) {
+    if (!isalpha(name)) {
         redmsg = ">> ERROR: MEMBER NAME CAN CONTAINS ONLY LETTERS\n";
         return;
     }
@@ -248,20 +264,44 @@ void Bank::removeAll() {
 }
 
 bool Bank::handleInput(std::vector<std::string> input) {
-    if (input[0] == "add") addMember(input[1]);
-    else if (input[0] == "remove") removeMember(input[1]);
+    if (input.empty()) return true;
+
+    if (input[0] == "add") {
+        if (input.size() == 1) {
+            redmsg = ">> ERROR: MISSING ARGUMENT(S)!\n";
+            return true;
+        }
+        addMember(input[1]);
+    }
+    else if (input[0] == "remove") {
+        if (input.size() == 1) {
+            redmsg = ">> ERROR: MISSING ARGUMENT(S)!\n";
+            return true;
+        }
+        removeMember(input[1]);
+    }
     else if (input[0] == "show") showData();
     else if (input[0] == "update") updateData();
     else if (input[0] == "pay") {
         if (input.size() == 3) {
+            if (!isnum(input[2])) {
+                redmsg = ">> ERROR: INVALID AMMOUNT!\n";
+                return true;
+            }
             pay(input[1], input[2]);
         } else if (input.size() == 4) {
+            if (!isnum(input[3])) {
+                redmsg = ">> ERROR: INVALID AMMOUNT!\n";
+                return true;
+            }
             pay(input[1], input[2], input[3]);
-        } else if (input[3] == "exclude") {
+        } else if (input.size() > 2 && input[3] == "exclude") {
             std::vector<std::string> without(input.begin() + 4, input.begin() + input.size());
             if (validateExclude(without)) {
                 pay(input[1], input[2], without);
             }
+        } else {
+            redmsg = ">> ERROR: UNKNOWN COMMAND OR MISSING ARGUMENT(S)!\n";
         }
     } else if (input[0] == "exit") {
         if (!saved) {
@@ -280,6 +320,11 @@ bool Bank::handleInput(std::vector<std::string> input) {
         }
         return false;
     } else if (input[0] == "clear") {
+        if (input.size() == 1) {
+            redmsg = ">> ERROR: MISSING ARGUMENT(S)!\n";
+            return true;
+        }
+
         if (input[1] == "members") {
             std::cout << "\a";
             colorizer.setColor("RED");

@@ -3,5 +3,5 @@ project(tripbank)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp Bank.cpp Bank.h Client.cpp Client.h Colorizer.cpp Colorizer.h)
+set(SOURCE_FILES main.cpp Bank.cpp Bank.h Client.cpp Client.h Colorizer.cpp Colorizer.h CommandLine.cpp CommandLine.h)
 add_executable(tripbank ${SOURCE_FILES})

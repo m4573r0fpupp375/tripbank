@@ -1,12 +1,5 @@
-bochenek -10
-bukala -10
-dronka -10
-klos -10
-kobak -10
-kondratek -10
-lampart -10
-matusz -10
-pekala -10
-przybos -10
-respekta -10
-kacper 110
+walter -400
+jesse 100
+hank -100
+saul 100
+gus 0
